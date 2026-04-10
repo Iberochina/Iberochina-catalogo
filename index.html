@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBEROCHINA — Congelados & Frescos</title>
+<title>IBEROCHINA — Productos Secos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
@@ -30,7 +30,8 @@ body{font-family:'DM Sans',sans-serif;color:var(--text);display:flex;flex-direct
 /* MAIN APP */
 #app{display:none;flex-direction:column;flex:1}
 
-header{background:var(--black);height:70px;display:flex;align-items:stretch;position:sticky;top:0;z-index:300}
+header{background:var(--black);height:70px;display:flex;align-items:stretch}
+.sticky-top{position:sticky;top:0;z-index:300}
 .header-brand{display:flex;align-items:center;gap:16px;padding:0 36px;border-right:1px solid rgba(255,255,255,0.06);min-width:260px}
 .logo-icon{width:36px;height:36px;border:1.5px solid var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--red)}
 .logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);letter-spacing:0.12em}
@@ -155,12 +156,13 @@ footer{background:var(--black);padding:14px 36px;display:flex;align-items:center
 
 <!-- APP -->
 <div id="app">
+<div class="sticky-top">
 <header>
   <div class="header-brand">
     <div class="logo-icon">IC</div>
     <div>
       <div class="logo-text">IBEROCHINA</div>
-      <div class="logo-sub">Congelados &amp; Frescos</div>
+      <div class="logo-sub">Productos Secos</div>
     </div>
   </div>
   <div class="header-center">
@@ -184,9 +186,10 @@ footer{background:var(--black);padding:14px 36px;display:flex;align-items:center
 
 <div class="ticker">
   <div class="ticker-track">
-    <div class="ticker-item">CONGELADOS</div><div class="ticker-item">AJINOMOTO</div><div class="ticker-item">CHIMEI</div><div class="ticker-item">MOCHI QUEEN</div><div class="ticker-item">SPRING HOME</div><div class="ticker-item">SK</div><div class="ticker-item">MENGFU</div><div class="ticker-item">COCK</div><div class="ticker-item">MARINHAVE</div><div class="ticker-item">LITTLE CHEF</div><div class="ticker-item">EXOSTAR</div><div class="ticker-item">YAMASUKI</div>
-    <div class="ticker-item">CONGELADOS</div><div class="ticker-item">AJINOMOTO</div><div class="ticker-item">CHIMEI</div><div class="ticker-item">MOCHI QUEEN</div><div class="ticker-item">SPRING HOME</div><div class="ticker-item">SK</div><div class="ticker-item">MENGFU</div><div class="ticker-item">COCK</div><div class="ticker-item">MARINHAVE</div><div class="ticker-item">LITTLE CHEF</div><div class="ticker-item">EXOSTAR</div><div class="ticker-item">YAMASUKI</div>
+    <div class="ticker-item">SECOS</div><div class="ticker-item">AJINOMOTO</div><div class="ticker-item">CHIMEI</div><div class="ticker-item">MOCHI QUEEN</div><div class="ticker-item">SPRING HOME</div><div class="ticker-item">SK</div><div class="ticker-item">MENGFU</div><div class="ticker-item">COCK</div><div class="ticker-item">MARINHAVE</div><div class="ticker-item">LITTLE CHEF</div><div class="ticker-item">EXOSTAR</div><div class="ticker-item">YAMASUKI</div>
+    <div class="ticker-item">SECOS</div><div class="ticker-item">AJINOMOTO</div><div class="ticker-item">CHIMEI</div><div class="ticker-item">MOCHI QUEEN</div><div class="ticker-item">SPRING HOME</div><div class="ticker-item">SK</div><div class="ticker-item">MENGFU</div><div class="ticker-item">COCK</div><div class="ticker-item">MARINHAVE</div><div class="ticker-item">LITTLE CHEF</div><div class="ticker-item">EXOSTAR</div><div class="ticker-item">YAMASUKI</div>
   </div>
+</div>
 </div>
 
 <div class="layout">
@@ -197,7 +200,7 @@ footer{background:var(--black);padding:14px 36px;display:flex;align-items:center
   <main>
     <div class="main-top">
       <div class="breadcrumb" id="breadcrumb">Todos los productos</div>
-      <div class="page-title" id="pageTitle">Congelados &amp; <strong>Frescos</strong></div>
+      <div class="page-title" id="pageTitle">Productos <strong>Secos</strong></div>
       <div class="page-count"><strong id="countNum">—</strong> referencias</div>
     </div>
     <div class="content-area">
@@ -330,7 +333,7 @@ function selectAll(el) {
   clearActive(); el.classList.add('active');
   curFilter = '';
   document.getElementById('breadcrumb').textContent = 'Todos los productos';
-  document.getElementById('pageTitle').innerHTML = 'Congelados &amp; <strong>Frescos</strong>';
+  document.getElementById('pageTitle').innerHTML = 'Productos <strong>Secos</strong>';
   filterProducts();
 }
 
@@ -350,7 +353,7 @@ function toggleGroup(id, parent, el) {
     curFilter = '';
     document.querySelector('.nav-all').classList.add('active');
     document.getElementById('breadcrumb').textContent = 'Todos los productos';
-    document.getElementById('pageTitle').innerHTML = 'Congelados &amp; <strong>Frescos</strong>';
+    document.getElementById('pageTitle').innerHTML = 'Productos <strong>Secos</strong>';
   }
   filterProducts();
 }
