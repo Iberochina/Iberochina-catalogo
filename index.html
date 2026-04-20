@@ -20,7 +20,7 @@
       --red: #c8382a;
       --black: #080808;
       --near-black: #111;
-      --white: #faf7f2;
+      --white: #faf7f2; 
       --cream: #f2ede4;
       --warm: #e8e0d4;
       --gold: #c9a84c;
@@ -1025,52 +1025,68 @@
     let curFilter = '';
     let curView = 'table';
 
-    // ── CARGAR CSV ──────────────────────────────────────────────
-    function loadCSV() {
-      const csvUrl = window.location.href.replace(/\/[^\/]*$/, '/') + 'producto.csv';
-      console.log('Cargando CSV desde:', csvUrl);
-      Papa.parse(csvUrl, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function (results) {
-          const fields = results.meta.fields || [];
-          console.log('Campos encontrados:', fields);
-          const findField = (keys) => fields.find(f => keys.some(k => f.toLowerCase().includes(k.toLowerCase()))) || '';
-          const fNombre = findField(['nombre']);
-          const fRef = findField(['referencia']);
-          const fImg = findField(['imagen', '256']);
-          const fCat = findField(['categor']);
-          console.log('Campos usados:', fNombre, fRef, fImg, fCat);
-          allProducts = results.data.map(row => ({
-            nombre: (row[fNombre] || '').trim(),
-            ref: (row[fRef] || '').trim(),
-            img: (row[fImg] || '').trim(),
-            categoria: (row[fCat] || '').trim()
-          })).filter(p => p.nombre);
+    async function loadCSV() {
+  const baseUrl = window.location.href.replace(/\/[^\/]*$/, '/');
+  const urls = [baseUrl + 'producto1.csv', baseUrl + 'producto2.csv'];
+  
+  try {
+    const responses = await Promise.all(urls.map(url => fetch(url).then(res => {
+      if (!res.ok) throw new Error();
+      return res.text();
+    })));
 
-          document.getElementById('statNum').textContent = allProducts.length;
-          document.getElementById('countNum').textContent = allProducts.length;
-          document.getElementById('footerNote').textContent =
-            'Expertos en Alimentación Oriental · ' + allProducts.length + ' referencias';
+    const part1 = responses[0].trim();
+    const part2Lines = responses[1].trim().split('\n');
+    const part2Data = part2Lines.slice(1).join('\n');
+    const fullContent = part1 + '\n' + part2Data;
 
-          buildSidebar();
-          renderProducts(allProducts);
-          setupImageModal();
-          initTicker
+    Papa.parse(fullContent, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (results) {
+        const fields = results.meta.fields || [];
+        const findField = (keys) => fields.find(f => keys.some(k => f.toLowerCase().includes(k.toLowerCase()))) || '';
+        
+        const fNombre = findField(['nombre']);
+        const fRef = findField(['referencia']);
+        const fImg = findField(['imagen', '256']);
+        const fCat = findField(['categor']);
 
-          document.getElementById('loading').style.display = 'none';
-          const app = document.getElementById('app');
-          app.style.display = 'flex';
-        },
-        error: function () {
-          document.getElementById('loading').style.display = 'none';
-          const err = document.getElementById('error');
-          err.style.display = 'flex';
-        }
-      });
-    }
+        allProducts = results.data.map(row => ({
+          nombre: (row[fNombre] || '').trim(),
+          ref: (row[fRef] || '').trim(),
+          img: (row[fImg] || '').trim(),
+          categoria: (row[fCat] || '').trim()
+        })).filter(p => p.nombre);
 
+        document.getElementById('statNum').textContent = allProducts.length;
+        document.getElementById('countNum').textContent = allProducts.length;
+        document.getElementById('footerNote').textContent =
+          'Expertos en Alimentación Oriental · ' + allProducts.length + ' referencias';
+
+        buildSidebar();
+        renderProducts(allProducts);
+        setupImageModal();
+        if (typeof initTicker === 'function') initTicker();
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+      },
+      error: function () {
+        showError();
+      }
+    });
+
+  } catch (error) {
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('loading').style.display = 'none';
+  const err = document.getElementById('error');
+  if (err) err.style.display = 'flex';
+}
 
     // ==================== 图片点击放大功能 ====================
     function setupImageModal() {
