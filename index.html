@@ -1027,7 +1027,7 @@
 
     async function loadCSV() {
   const baseUrl = window.location.href.replace(/\/[^\/]*$/, '/');
-  const urls = [baseUrl + 'producto1.csv', baseUrl + 'producto2.csv'];
+  const urls = ['producto1.csv', 'producto2.csv'];
   
   try {
     const responses = await Promise.all(urls.map(url => fetch(url).then(res => {
