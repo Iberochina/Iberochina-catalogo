@@ -20,7 +20,7 @@
       --red: #c8382a;
       --black: #080808;
       --near-black: #111;
-      --white: #faf7f2; 
+      --white: #faf7f2;
       --cream: #f2ede4;
       --warm: #e8e0d4;
       --gold: #c9a84c;
@@ -108,7 +108,8 @@
     }
 
     /* ============== 图片放大弹窗 ============== */
-    #imageModal {/*bg*/
+    #imageModal {
+      /*bg*/
       display: none;
       position: fixed;
       inset: 0;
@@ -130,7 +131,8 @@
       display: flex;
     }
 
-    #modalImage {/*popup*/
+    #modalImage {
+      /*popup*/
       max-width: 92%;
       max-height: 92vh;
       min-width: 400px;
@@ -1026,67 +1028,103 @@
     let curView = 'table';
 
     async function loadCSV() {
-  const baseUrl = window.location.href.replace(/\/[^\/]*$/, '/');
-  const urls = ['producto1.csv', 'producto2.csv'];
-  
-  try {
-    const responses = await Promise.all(urls.map(url => fetch(url).then(res => {
-      if (!res.ok) throw new Error();
-      return res.text();
-    })));
-
-    const part1 = responses[0].trim();
-    const part2Lines = responses[1].trim().split('\n');
-    const part2Data = part2Lines.slice(1).join('\n');
-    const fullContent = part1 + '\n' + part2Data;
-
-    Papa.parse(fullContent, {
-      header: true,
-      skipEmptyLines: true,
-      complete: function (results) {
-        const fields = results.meta.fields || [];
+    // 获取当前页面的基础路径
+    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+    
+    // 两个 CSV 文件
+    const urls = ['producto1.csv', 'producto2.csv'];
+    let allData = [];
+    
+    try {
+        // 分别加载两个 CSV 文件
+        for (let url of urls) {
+            const fullUrl = basePath + url;
+            console.log(`Cargando: ${fullUrl}`);
+            
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error(`No se pudo cargar ${url}: ${response.status}`);
+            }
+            
+            const text = await response.text();
+            console.log(`${url} cargado, tamaño: ${text.length} bytes`);
+            
+            // 使用 PapaParse 解析 CSV
+            const result = await new Promise((resolve) => {
+                Papa.parse(text, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: resolve
+                });
+            });
+            
+            if (result.data && result.data.length > 0) {
+                allData = allData.concat(result.data);
+                console.log(`${url}: ${result.data.length} productos`);
+            }
+        }
+        
+        // 处理数据
+        if (allData.length === 0) {
+            throw new Error('No se encontraron datos');
+        }
+        
+        // 映射字段
+        const fields = Object.keys(allData[0]);
         const findField = (keys) => fields.find(f => keys.some(k => f.toLowerCase().includes(k.toLowerCase()))) || '';
         
         const fNombre = findField(['nombre']);
         const fRef = findField(['referencia']);
         const fImg = findField(['imagen', '256']);
         const fCat = findField(['categor']);
-
-        allProducts = results.data.map(row => ({
-          nombre: (row[fNombre] || '').trim(),
-          ref: (row[fRef] || '').trim(),
-          img: (row[fImg] || '').trim(),
-          categoria: (row[fCat] || '').trim()
+        
+        allProducts = allData.map(row => ({
+            nombre: (row[fNombre] || '').trim(),
+            ref: (row[fRef] || '').trim(),
+            img: (row[fImg] || '').trim(),
+            categoria: (row[fCat] || '').trim()
         })).filter(p => p.nombre);
-
+        
+        console.log(`Total productos cargados: ${allProducts.length}`);
+        
+        // 更新界面
         document.getElementById('statNum').textContent = allProducts.length;
         document.getElementById('countNum').textContent = allProducts.length;
-        document.getElementById('footerNote').textContent =
-          'Expertos en Alimentación Oriental · ' + allProducts.length + ' referencias';
-
+        document.getElementById('footerNote').textContent = 
+            'Expertos en Alimentación Oriental · ' + allProducts.length + ' referencias';
+        
+        // 构建界面
         buildSidebar();
         renderProducts(allProducts);
         setupImageModal();
-        if (typeof initTicker === 'function') initTicker();
-
+        
+        // 隐藏 loading，显示 app
         document.getElementById('loading').style.display = 'none';
         document.getElementById('app').style.display = 'flex';
-      },
-      error: function () {
+        
+    } catch (error) {
+        console.error('Error detallado:', error);
         showError();
-      }
-    });
-
-  } catch (error) {
-    showError();
-  }
+    }
 }
 
 function showError() {
-  document.getElementById('loading').style.display = 'none';
-  const err = document.getElementById('error');
-  if (err) err.style.display = 'flex';
+    document.getElementById('loading').style.display = 'none';
+    const errDiv = document.getElementById('error');
+    if (errDiv) {
+        errDiv.style.display = 'flex';
+        const codeElem = errDiv.querySelector('code');
+        if (codeElem) {
+            codeElem.textContent = 'producto1.csv  y  producto2.csv';
+        }
+    }
 }
+
+    function showError() {
+      document.getElementById('loading').style.display = 'none';
+      const err = document.getElementById('error');
+      if (err) err.style.display = 'flex';
+    }
 
     // ==================== 图片点击放大功能 ====================
     function setupImageModal() {
@@ -1244,30 +1282,30 @@ function showError() {
     }
 
     // ==================== 自动生成 Ticker（无限循环版） ====================
-function initTicker() {
-  const brands = [
-    "CONGELADOS", "AJINOMOTO", "CHIMEI", "MOCHI QUEEN", 
-    "SPRING HOME", "SK", "MENGFU", "COCK", "MARINHAVE", 
-    "LITTLE CHEF", "EXOSTAR", "YAMASUKI"
-  ];
+    function initTicker() {
+      const brands = [
+        "CONGELADOS", "AJINOMOTO", "CHIMEI", "MOCHI QUEEN",
+        "SPRING HOME", "SK", "MENGFU", "COCK", "MARINHAVE",
+        "LITTLE CHEF", "EXOSTAR", "YAMASUKI"
+      ];
 
-  const track = document.getElementById('tickerTrack');
-  if (!track) return;
+      const track = document.getElementById('tickerTrack');
+      if (!track) return;
 
-  let html = '';
-  const repeatTimes = 8;   // ← 这里改数字！想更密集就改大（推荐 6~10）
+      let html = '';
+      const repeatTimes = 8;   // ← 这里改数字！想更密集就改大（推荐 6~10）
 
-  for (let i = 0; i < repeatTimes; i++) {
-    brands.forEach(brand => {
-      html += `<div class="ticker-item">${brand}</div>`;
-    });
-  }
+      for (let i = 0; i < repeatTimes; i++) {
+        brands.forEach(brand => {
+          html += `<div class="ticker-item">${brand}</div>`;
+        });
+      }
 
-  track.innerHTML = html;
-}
+      track.innerHTML = html;
+    }
 
-// 在页面加载完成后调用
-window.addEventListener('load', initTicker);
+    // 在页面加载完成后调用
+    window.addEventListener('load', initTicker);
 
 
     // ── NAV ACTIONS ──────────────────────────────────────────────
